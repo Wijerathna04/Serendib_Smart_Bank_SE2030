@@ -6,9 +6,9 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface RoleRepository
-        extends JpaRepository<Role, Integer> {
-
-    Optional<Role> findByRoleNameIgnoreCase(String roleName);
-
+public interface RoleRepository extends JpaRepository<Role, Integer> {
+    Optional<Role> findFirstByRoleNameIgnoreCase(String roleName);
+    default Optional<Role> findByRoleNameIgnoreCase(String roleName) {
+        return findFirstByRoleNameIgnoreCase(roleName);
+    }
 }
