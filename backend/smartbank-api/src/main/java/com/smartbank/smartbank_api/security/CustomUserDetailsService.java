@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -22,11 +23,20 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
-        String roleName = "ROLE_" + user.getRole().getRoleName().toUpperCase();
+        String rawRole = (user.getRole() != null && user.getRole().getRoleName() != null) ? user.getRole().getRoleName() : "CUSTOMER";
+        String upper = rawRole.toUpperCase(Locale.ROOT).trim();
+        if (upper.startsWith("ROLE_")) {
+            upper = upper.substring(5);
+        }
+        if (upper.startsWith("BANK ")) {
+            upper = upper.substring(5);
+        }
+        String roleName = "ROLE_" + upper;
 
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPasswordHash(),
+                "ACTIVE".equals(user.getStatus()), true, true, true,
                 List.of(new SimpleGrantedAuthority(roleName)));
     }
 }
