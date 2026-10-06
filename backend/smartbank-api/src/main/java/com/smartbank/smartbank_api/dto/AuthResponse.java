@@ -1,5 +1,7 @@
 package com.smartbank.smartbank_api.dto;
 
+//Role
+
 public class AuthResponse {
 
     private String token;

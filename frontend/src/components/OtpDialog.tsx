@@ -1,0 +1,12 @@
+import { useEffect, useState } from 'react';
+import { api, send, date, money } from '../api/client';
+import type { Transaction } from '../types/api';
+import { ErrorMessage, Field, useApi } from './ui';
+export function OtpDialog({id,onClose,onComplete}: {id:number;onClose:()=>void;onComplete:()=>void}) {
+  const [code,setCode]=useState(''),[error,setError]=useState<unknown>(null),[busy,setBusy]=useState(false),[sim,setSim]=useState(''),[cooldown,setCooldown]=useState(30);
+  const {data:transaction}=useApi<Transaction>(`/api/transactions/${id}`);
+  useEffect(()=>{const timer=window.setInterval(()=>setCooldown(c=>Math.max(0,c-1)),1000);return()=>window.clearInterval(timer);},[]);
+  async function verify(e:React.FormEvent) {e.preventDefault();setBusy(true);setError(null);try {await send(`/api/transactions/${id}/verify-otp`,{code});onComplete();}catch(e){setError(e);}finally{setBusy(false);}}
+  async function resend() {setBusy(true);setError(null);try{await send(`/api/transactions/${id}/resend-otp`);setCooldown(30);setSim('');}catch(e){setError(e);}finally{setBusy(false);}}
+  return <div className="modal-backdrop"><section className="modal" role="dialog" aria-modal="true" aria-labelledby="otp-title"><button className="close" aria-label="Close verification" onClick={onClose}>×</button><span className="eyebrow">VERIFY YOUR REQUEST</span><h2 id="otp-title">One more step</h2><p>Confirm transaction #{id} with your six-digit verification code.</p>{transaction&&<div className="callout"><strong>{money(transaction.amount)}</strong><div>{transaction.description}</div><small>Authorization ends {date(transaction.authorizationExpiresAt)}</small></div>}<ErrorMessage error={error}/><form onSubmit={verify}><Field label="Verification code"><input autoFocus inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} required value={code} onChange={e=>setCode(e.target.value.replace(/\D/g,''))}/></Field><button disabled={busy}>{busy?'Processing…':'Verify and complete'}</button></form><button className="link-button" disabled={busy||cooldown>0} onClick={resend}>Resend code{cooldown>0?` (${cooldown}s)`:''}</button>{import.meta.env.VITE_OTP_SIMULATION==='true'&&<div className="simulation"><small>Academic simulation only</small><button className="secondary" onClick={async()=>{try{setSim((await api<{code:string}>(`/api/simulation/otp/${id}`)).code);}catch(e){setError(e);}}}>Show simulated code</button>{sim&&<code>{sim}</code>}</div>}</section></div>;
+}
