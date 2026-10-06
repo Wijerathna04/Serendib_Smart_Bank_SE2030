@@ -12,6 +12,9 @@ public class User {
     @Column(name = "user_id")
     private Integer userId;
 
+    @Version
+    private long version;
+
     private String username;
 
     @Column(name = "password_hash")
@@ -23,12 +26,18 @@ public class User {
 
     private String status;
 
+    @Column(name = "profile_image", columnDefinition = "TEXT")
+    private String profileImage;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")
     private Role role;
+
+    public User() {
+    }
 
     public Integer getUserId() {
         return userId;
@@ -36,6 +45,14 @@ public class User {
 
     public void setUserId(Integer userId) {
         this.userId = userId;
+    }
+
+    public long getVersion() {
+        return version;
+    }
+
+    public void setVersion(long version) {
+        this.version = version;
     }
 
     public String getUsername() {
@@ -46,6 +63,7 @@ public class User {
         this.username = username;
     }
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     public String getPasswordHash() {
         return passwordHash;
     }
@@ -94,8 +112,22 @@ public class User {
         this.role = role;
     }
 
-    public User() {
+    public String getProfileImage() {
+        return profileImage;
     }
 
-    // Generate getters and setters
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
+
+    @Column(name = "must_change_password")
+    private Boolean mustChangePassword = false;
+
+    public Boolean getMustChangePassword() {
+        return mustChangePassword != null && mustChangePassword;
+    }
+
+    public void setMustChangePassword(Boolean mustChangePassword) {
+        this.mustChangePassword = mustChangePassword;
+    }
 }
