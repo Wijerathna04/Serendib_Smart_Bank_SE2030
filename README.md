@@ -3,7 +3,7 @@ Web-based banking system built for optimizing online banking as the software eng
 
 ## Group 2026-Y2-S1-MLB-B5G1-02
 
-- IT25101802  Sanketh W.A.N.
+- IT25101802    Sanketh W.A.N.
 - IT25102635	Wanniarachchi U.P.
 - IT25103677	Wijerathna T. L. R. B.
 - IT25101689	Vidara M.K.A.O.
